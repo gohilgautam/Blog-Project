@@ -1,7 +1,7 @@
 const { StatusCodes } = require("http-status-codes");
 const { successResponse, errorResponse } = require("../../utils/response");
 const { MSG } = require("../../utils/message");
-const UserService = require("../../services/auth/auth.Services");
+const UserService = require("../../Services/auth/auth.Services");
 
 const bcrypt = require('bcrypt');
 const moment = require('moment');

@@ -1,9 +1,10 @@
 import { createBrowserRouter } from "react-router";
 import App from "../App";
-import Login from "../Pages/auth/log-In";
+import Login from "../Pages/auth/LoginPage";
 import SignUp from "../Pages/auth/RegisterPage";
-import ForgotPassword from "../Pages/auth/forgotPasswordPage";
+import ForgotPassword from "../Pages/auth/ForgotPasswordPage";
 import OTPverify from "../Pages/auth/OTPverifyPage";
+import Homepage from "../Pages/Home/HomePage";
 import ChangePassword from "../Pages/auth/ChangePAsswordPage";
 
 export const routes = {
@@ -12,6 +13,7 @@ export const routes = {
     forgotPassword: '/forgot_password',
     otpVerify: '/otp_verify',
     changePassword: '/change_password',
+    home : '/home',
 }
 
 
@@ -43,6 +45,10 @@ export const router = createBrowserRouter([
             {
                 path: routes.changePassword,
                 Component: ChangePassword
+            },
+            {
+                path: routes.home,
+                Component: Homepage
             }
         ]
     },

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { routes } from '../../Routes/routes';
+import { Link } from 'react-router';
+import {routes } from '../../Routes/routes';
 import { Lock } from 'lucide-react';
 
-// This component will render the decorative background bubbles
+
 const DecorativeBubble: React.FC<{ className: string; size: string }> = ({ className, size }) => (
   <div
     className={`absolute rounded-full ${size} ${className} opacity-20`}
@@ -11,11 +11,6 @@ const DecorativeBubble: React.FC<{ className: string; size: string }> = ({ class
   />
 );
 
-/**
- * A component for the "Change Password" page.
- * Allows a user to set a new password.
- * Styled to match the Login and Forgot Password pages.
- */
 const ChangePassword = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
