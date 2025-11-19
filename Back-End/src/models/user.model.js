@@ -6,7 +6,28 @@ const userSchema = mongoose.Schema({
     password: String,
     gender: String,
     about: String,
-    profile: String,
+    profile_image: String,
+    send_otp: String,
+    otp_expire: {
+        type: Date,
+        default: null
+    },
+    attempt: {
+        type: Number,
+        default: 0,
+    },
+    expire_attempt: {
+        type: Date,
+        default: null
+    },
+    verify_attempt: {
+        type: Number,
+        default: 0,
+    },
+    attempt_verify_expire: {
+        type: Date,
+        default: null
+    },
     create_at: String,
     update_at: String,
     isActive: {
