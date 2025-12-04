@@ -1,12 +1,12 @@
 const { StatusCodes } = require("http-status-codes");
-const { successResponse, errorResponse } = require("../../utils/response");
+const { successResponse, errorResponse } = require("../../utils/responseFormat");
 const { MSG } = require("../../utils/message");
-const UserService = require("../../Services/auth/auth.Services");
+const UserService = require("../../services/auth/auth.service");
 
 const bcrypt = require('bcrypt');
 const moment = require('moment');
 const jwt = require('jsonwebtoken');
-const sendMail  = require("../../utils/mailer");
+const sendMail = require("../../utils/email");
 
 const userService = new UserService();
 
@@ -25,7 +25,6 @@ exports.registerUser = async (req, res) => {
         req.body.profile_image = req.file.path;
 
         const newUser = await userService.registerUser(req.body);
-
 
         return res.json(successResponse(StatusCodes.CREATED, false, MSG.USER_CREATED, newUser));
     } catch (error) {
@@ -69,13 +68,13 @@ exports.forgotPassword = async (req, res) => {
 
         const { email } = req.body;
 
-        const user = await userService.fetchSingleUser({ email });
+        const user = await userService.fetchSingleUser({ email, isDelete: false });
 
         if (!user) {
             return res.json(errorResponse(StatusCodes.BAD_REQUEST, true, MSG.USER_NOT_FOUND));
         }
 
-        if (user.attempt_expire && user.attempt_expire < Date.now()) {
+        if (user.attempt_expire && user.attempt_expire < Date.now()) { // 7.33 < 7.35
             user.attempt = 0;
         }
 
@@ -86,7 +85,7 @@ exports.forgotPassword = async (req, res) => {
         user.attempt++; // 3
 
         const OTP = Math.floor(100000 + Math.random() * 900000);
-        const expireTime = new Date(Date.now() + 2 * 60 * 1000);
+        const expireTime = new Date(Date.now() + 2 * 60 * 1000); //6:10 + 120000   Ans : 06:12
 
         sendMail(email, OTP);
 
@@ -105,28 +104,31 @@ exports.verifyOTP = async (req, res) => {
 
         const { email, OTP } = req.body;
 
-        const user = await userService.fetchSingleUser({ email });
+        const user = await userService.fetchSingleUserForOTP({ email, isDelete: false });
 
         if (!user) {
             return res.json(errorResponse(StatusCodes.BAD_REQUEST, true, MSG.USER_NOT_FOUND));
         }
         console.log("First", user.verify_attempt);
 
-        if (user.verify_attempt_expire && user.verify_attempt_expire < Date.now()) { 
+        if (user.verify_attempt_expire && user.verify_attempt_expire < Date.now()) { // 7.33 < 7.35
             user.verify_attempt = 0;
         }
 
-        if (user.verify_attempt >= 3) { 
+        if (user.verify_attempt >= 3) { //0 >= 3
             return res.json(errorResponse(StatusCodes.TOO_MANY_REQUESTS, true, MSG.MANY_TIME_OTP));
         }
 
-        if (user.reset_otp_expire < Date.now()) { 
+        if (user.reset_otp_expire < Date.now()) { // 6:12 < 6:11
             return res.json(errorResponse(StatusCodes.BAD_REQUEST, true, MSG.OTP_EXPIRED));
         }
 
-        user.verify_attempt++; 
+        user.verify_attempt++; // 3
         console.log("Second", user.verify_attempt);
         await userService.updateUser(user._id, { verify_attempt: user.verify_attempt, verify_attempt_expire: new Date(Date.now() + 60 * 60 * 1000) });
+
+        console.log("User OTP : ", user.reset_otp);
+        console.log("OTP : ", OTP);
 
         if (OTP !== user.reset_otp) {
             return res.json(errorResponse(StatusCodes.BAD_REQUEST, true, MSG.INVALID_OTP));
@@ -146,7 +148,7 @@ exports.changePassword = async (req, res) => {
         console.log(req.body);
         const { email, newPassword } = req.body;
 
-        const user = await userService.fetchSingleUser({ email });
+        const user = await userService.fetchSingleUser({ email, isDelete: false });
 
         if (!user) {
             return res.json(errorResponse(StatusCodes.BAD_REQUEST, true, MSG.USER_NOT_FOUND));
